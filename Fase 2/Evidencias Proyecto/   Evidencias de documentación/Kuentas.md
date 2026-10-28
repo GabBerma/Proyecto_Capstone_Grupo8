@@ -248,7 +248,7 @@ Fase 7 (SPEC-066).
 
 ## 13. Pruebas y validación
 
-- **Pruebas automatizadas:** 51 archivos de prueba en el backend (Jest) y 52 en
+- **Pruebas automatizadas:** cerca de 70 archivos de prueba en el backend (Jest) y 60 en
   el frontend (Vitest), que cubren servicios, validaciones y vistas.
 - **Integración continua:** las pruebas se ejecutan automáticamente y bloquean
   el despliegue si fallan.
@@ -267,7 +267,7 @@ Fase 7 (SPEC-066).
 Kuentas tiene **implementado el ciclo contable principal**: maestros, plan de
 cuentas, registro de comprobantes con partida doble validada, libros e informes
 financieros. Esto se apoya en una base técnica consistente (NestJS N-Tier con
-Prisma y PostgreSQL multi-tenant, Vue 3 con MVVM y Pinia), cerca de 100 archivos
+Prisma y PostgreSQL multi-tenant, Vue 3 con MVVM y Pinia), cerca de 130 archivos
 de pruebas automatizadas y despliegue continuo en Google Cloud Run.
 
 El bloque tributario (motor de cierre, Formulario 22 y sincronización con el
@@ -277,13 +277,15 @@ usuario. En resumen, Kuentas es un **MVP contable operativo**, listo para
 demostrar el ciclo contable completo, con una hoja de ruta definida para su uso
 tributario en producción.
 
-## 15. Evidencias sugeridas
+## 15. Evidencias del módulo
 
-1. Plan de Cuentas: árbol jerárquico y cuentas protegidas.
-2. Registro de comprobante: partida doble y mensaje de error cuando no cuadra.
-3. Importación masiva: resultado de una carga con filas correctas y con error.
-4. Libro Diario y Libro Mayor de un período.
-5. Balance General y Estado de Resultado.
-6. Diagrama del modelo de datos (`Company`, `Cuenta`, `Voucher`, `VoucherLinea`).
-7. Documentación de la API en Swagger.
-8. Resultado de la ejecución de las pruebas automatizadas.
+Las evidencias de Kuentas se encuentran en la carpeta
+[`Evidencias Proyecto/Kuentas`](../Kuentas):
+
+- **Capturas:** registro de comprobantes, validación de cuadratura, libros e
+  informes, importación masiva y documentación de la API.
+- **Diagramas:** arquitectura del sistema y modelo de datos.
+- **Especificaciones:** ejemplos de SPECS (Registro de Voucher e Importación
+  Masiva).
+- **Pruebas:** estrategia de pruebas y resultados de su ejecución.
+
