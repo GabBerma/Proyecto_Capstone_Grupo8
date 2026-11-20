@@ -152,16 +152,24 @@ El código fuente de PittySoft pertenece a la empresa para la cual se desarrolla
 
 Para quienes tengan acceso a los repositorios, el procedimiento general para ejecutar cada módulo es el siguiente.
 
-**Requisitos:** Node.js, Docker y PostgreSQL.
+**Requisitos:** Node.js y PostgreSQL.
 
-**Pasos generales (backend y frontend de cada módulo):**
+**Ejemplo: módulo Kuentas**
 
-1. Clonar el repositorio del módulo.
-2. Copiar el archivo `.env.example` como `.env` y completar las variables de entorno (conexión a la base de datos, secreto JWT y credenciales de servicios externos).
-3. Instalar las dependencias: `npm install`
-4. Aplicar las migraciones de la base de datos: `npx prisma migrate deploy`
-5. Levantar el backend: `npm run start:dev`
-6. Levantar el frontend: `npm run dev`
+Backend (`kuentas-api/`):
+
+1. Copiar las variables de entorno: `cp .env.example .env` y completar los valores (conexión a la base de datos, secretos JWT y credenciales de servicios externos).
+2. Instalar dependencias: `npm install`
+3. Aplicar las migraciones: `npx prisma migrate deploy`
+4. Cargar datos de demostración (organización y usuario administrador): `npm run prisma:seed`
+5. Levantar la API: `npm run dev` → `http://localhost:3000` (documentación Swagger en `/api/docs`)
+
+Frontend (`kuentas-web/`):
+
+1. Instalar dependencias: `npm install`
+2. Levantar la aplicación: `npm run dev` → `http://localhost:5173`
+
+**Despliegue:** cada componente cuenta con su `Dockerfile`. El despliegue a Google Cloud Run se realiza con GitHub Actions y solo se ejecuta si las pruebas y la verificación de tipos finalizan correctamente.
 
 El detalle de cada módulo se encuentra en el README de su repositorio.
 
