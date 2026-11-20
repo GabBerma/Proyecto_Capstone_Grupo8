@@ -4,7 +4,7 @@
 
 PittySoft es una solución informática modular desarrollada como parte del Proyecto APT de la asignatura Capstone de Ingeniería en Informática de Duoc UC.
 
-El proyecto busca centralizar y optimizar procesos administrativos, comerciales y contables de una empresa del rubro óptico, reemplazando progresivamente procesos que actualmente se encuentran distribuidos entre distintos sistemas, planillas y fuentes de información.
+El proyecto está dirigido a una empresa del rubro óptico y busca centralizar y optimizar sus procesos administrativos, comerciales y contables, que actualmente se encuentran distribuidos entre distintos sistemas, planillas y fuentes de información, lo que obliga a digitar, revisar y cruzar datos de forma manual.
 
 La solución se encuentra compuesta por tres módulos principales:
 
@@ -16,9 +16,11 @@ La solución se encuentra compuesta por tres módulos principales:
 
 ## Integrantes
 
-- **Axel Blanlot** – Responsable principal del módulo POS.
-- **Sebastian Quezada** – Responsable principal del módulo SAP-lite.
-- **Gabriel Bermar** – Responsable principal del módulo Kuentas.
+| Integrante | Rol |
+|---|---|
+| **Axel Blanlot** | Responsable principal del módulo POS |
+| **Sebastian Quezada** | Responsable principal del módulo SAP-lite |
+| **Gabriel Bermar** | Responsable principal del módulo Kuentas |
 
 Las actividades de integración, pruebas, validación, documentación y seguimiento del proyecto son desarrolladas colaborativamente por los integrantes del equipo.
 
@@ -92,29 +94,76 @@ Actualmente se continúa trabajando en la validación de la plataforma y en func
 
 ## Metodología de trabajo
 
-Para el desarrollo de PittySoft se utiliza un enfoque de trabajo híbrido, basado principalmente en **Spec-Driven Development (SDD)** y complementado con prácticas seleccionadas del **framework Scrum**.
+Para el desarrollo de PittySoft se utiliza un enfoque híbrido que combina **Spec-Driven Development (SDD)** con prácticas seleccionadas del **framework Scrum**:
 
-Las especificaciones funcionales o **SPEC** permiten documentar requerimientos, alcance, comportamiento esperado y criterios de aceptación antes de implementar determinadas funcionalidades.
+- **Scrum** organiza el *qué* y el *cuándo*: Backlog, priorización, sprints y revisión periódica de avances.
+- **SDD** define el *cómo*: antes de implementar, cada funcionalidad cuenta con una especificación (**SPEC**) que documenta su objetivo, alcance, comportamiento esperado y criterios de aceptación.
 
-El equipo también utiliza un Backlog para organizar y priorizar el trabajo, junto con reuniones de seguimiento, validaciones con usuarios y control de versiones mediante GitHub.
+En cada sprint se repite el mismo ciclo: **SPEC → revisión del equipo → implementación con agentes de IA (Claude Code) → pruebas e integración continua → validación con el usuario**. Ninguna funcionalidad llega a producción sin pasar por estos pasos.
 
 ---
 
 ## Tecnologías y herramientas
 
-Durante el desarrollo del proyecto se utilizan distintas tecnologías y herramientas de apoyo, entre ellas:
+| Capa | Tecnologías |
+|---|---|
+| **Frontend** | Vue 3, TypeScript, Vite y Pinia (patrón MVVM) |
+| **Backend** | API REST con NestJS sobre Fastify, Prisma ORM y autenticación JWT (arquitectura N-Tier) |
+| **Base de datos** | PostgreSQL multi-tenant (datos aislados por organización) |
+| **Infraestructura** | Docker y Google Cloud Run |
+| **CI/CD** | GitHub Actions |
+| **Pruebas** | Jest (backend) y Vitest (frontend) |
+| **Integraciones** | BSale, Mercado Pago, SII (vía API Gateway) |
+| **Herramientas de apoyo** | GitHub, VS Code, Claude Code, Obsidian (SPEC) y DbGate |
 
-- Git y GitHub para control de versiones.
-- Aplicaciones web para los módulos de PittySoft.
-- Bases de datos para la persistencia de información.
-- Integraciones mediante APIs y servicios externos.
-- BSale para procesos documentales y tributarios.
-- Mercado Pago para procesos asociados a pagos.
-- Servicios del SII para consulta y validación de información tributaria de proveedores.
-- Archivos Excel y CSV para procesos de importación.
-- Documentación funcional mediante SPEC.
+---
 
-Las tecnologías específicas de frontend, backend y base de datos utilizadas por cada módulo serán documentadas en los documentos técnicos correspondientes.
+## Arquitectura de la solución
+
+Los tres módulos comparten el mismo stack. POS y SAP-lite comparten backend y base de datos, con aplicaciones web independientes para cada módulo. Kuentas se desarrolla como una aplicación independiente, con su propio repositorio, backend y base de datos. Cada componente se ejecuta en su propio contenedor Docker en Google Cloud Run.
+
+```mermaid
+flowchart TB
+    subgraph CloudRun["Google Cloud Run · contenedores Docker"]
+        POSweb["POS web<br/>Vue 3 + Pinia"]
+        SAPweb["SAP-lite web<br/>Vue 3 + Pinia"]
+        KUweb["Kuentas web<br/>Vue 3 + Pinia"]
+        API1["API compartida POS + SAP-lite<br/>NestJS · Prisma · JWT"]
+        API2["API Kuentas<br/>NestJS · Prisma · JWT"]
+        DB1[("PostgreSQL<br/>POS + SAP-lite")]
+        DB2[("PostgreSQL<br/>Kuentas")]
+    end
+    POSweb -- "HTTPS / JSON" --> API1
+    SAPweb -- "HTTPS / JSON" --> API1
+    KUweb -- "HTTPS / JSON" --> API2
+    API1 --> DB1
+    API2 --> DB2
+    API1 -. "integración tributaria (en curso)" .- API2
+    API1 -.-> BSale["BSale"]
+    API1 -.-> MP["Mercado Pago"]
+    API2 -.-> SII["SII vía API Gateway"]
+```
+
+---
+
+## Ejecución local
+
+El código fuente de PittySoft pertenece a la empresa para la cual se desarrolla el proyecto, por lo que se mantiene en repositorios privados por motivos de confidencialidad: POS y SAP-lite comparten un repositorio, y Kuentas tiene uno propio. Las evidencias del funcionamiento del sistema (capturas, videos, pruebas e integración continua) se encuentran en `Fase 2/Evidencias Proyecto`.
+
+Para quienes tengan acceso a los repositorios, el procedimiento general para ejecutar cada módulo es el siguiente.
+
+**Requisitos:** Node.js, Docker y PostgreSQL.
+
+**Pasos generales (backend y frontend de cada módulo):**
+
+1. Clonar el repositorio del módulo.
+2. Copiar el archivo `.env.example` como `.env` y completar las variables de entorno (conexión a la base de datos, secreto JWT y credenciales de servicios externos).
+3. Instalar las dependencias: `npm install`
+4. Aplicar las migraciones de la base de datos: `npx prisma migrate deploy`
+5. Levantar el backend: `npm run start:dev`
+6. Levantar el frontend: `npm run dev`
+
+El detalle de cada módulo se encuentra en el README de su repositorio.
 
 ---
 
@@ -136,21 +185,18 @@ El proyecto aún se encuentra en desarrollo, por lo que algunas funcionalidades 
 
 ---
 
-## Estructura de documentación
+## Estructura del repositorio
 
-La documentación del proyecto será organizada progresivamente dentro del repositorio, incluyendo:
-
-- Definición y visión del proyecto.
-- Backlog.
-- Especificaciones funcionales.
-- Arquitectura.
-- Modelos de datos.
-- Documentación de POS.
-- Documentación de SAP-lite.
-- Documentación de Kuentas.
-- Pruebas y validaciones.
-- Evidencias del Proyecto APT.
-- Manuales y documentación técnica.
+```
+├── Fase 1/
+│   ├── Evidencias Grupales/
+│   └── Evidencias Individuales/
+├── Fase 2/
+│   ├── Evidencias Grupales/        Guías, informe final y planillas de evaluación
+│   ├── Evidencias Individuales/    Diarios de reflexión de cada integrante
+│   └── Evidencias Proyecto/        Documentación, evidencias del sistema, videos y presentación
+└── README.md
+```
 
 ---
 
